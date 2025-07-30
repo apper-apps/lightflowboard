@@ -15,8 +15,8 @@ const Input = forwardRef(({
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const containerRef = useRef(null);
-  const inputRef = ref || useRef(null);
-
+const internalRef = useRef(null);
+  const inputRef = ref || internalRef;
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (containerRef.current && !containerRef.current.contains(event.target)) {
