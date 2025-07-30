@@ -1,18 +1,19 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
-import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from '@dnd-kit/sortable';
-import { useSortable } from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
-import { format, isAfter, isToday, isThisWeek } from "date-fns";
+import { DndContext, KeyboardSensor, PointerSensor, closestCenter, useSensor, useSensors } from "@dnd-kit/core";
+import { SortableContext, arrayMove, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import { format, isAfter, isThisWeek, isToday } from "date-fns";
 import ApperIcon from "@/components/ApperIcon";
-import Button from "@/components/atoms/Button";
-import FilterButton from "@/components/molecules/FilterButton";
 import StatusBadge from "@/components/molecules/StatusBadge";
+import FilterButton from "@/components/molecules/FilterButton";
 import TaskModal from "@/components/organisms/TaskModal";
 import Loading from "@/components/ui/Loading";
 import Error from "@/components/ui/Error";
 import Empty from "@/components/ui/Empty";
+import Tasks from "@/components/pages/Tasks";
+import Input from "@/components/atoms/Input";
+import Button from "@/components/atoms/Button";
 
 const TaskList = ({ 
   tasks = [], 
@@ -26,9 +27,10 @@ const TaskList = ({
   onDeleteTask,
   onReorderTasks
 }) => {
-  const [filter, setFilter] = useState("My Tasks");
+const [filter, setFilter] = useState("My Tasks");
   const [sortField, setSortField] = useState("dueDate");
   const [sortDirection, setSortDirection] = useState("asc");
+  const [searchQuery, setSearchQuery] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState(null);
 const sensors = useSensors(
@@ -45,9 +47,17 @@ const sensors = useSensors(
     { key: "This Week", label: "This Week" }
   ];
 
-  const getFilteredTasks = () => {
+const getFilteredTasks = () => {
     let filtered = [...tasks];
 
+    // Apply search filter first
+    if (searchQuery.trim()) {
+      filtered = filtered.filter(task => 
+        task.title.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+
+    // Apply category filter
     switch (filter) {
       case "My Tasks":
         // For demo, showing all tasks as "My Tasks"
@@ -82,6 +92,26 @@ const sensors = useSensors(
     });
 
     return filtered;
+  };
+
+  const getSearchSuggestions = () => {
+    if (!searchQuery.trim()) return [];
+    
+    return tasks
+      .filter(task => 
+        task.title.toLowerCase().includes(searchQuery.toLowerCase()) &&
+        task.title.toLowerCase() !== searchQuery.toLowerCase()
+      )
+      .slice(0, 5)
+      .map(task => task.title);
+  };
+
+  const handleSearchSelect = (suggestion) => {
+    setSearchQuery(suggestion);
+  };
+
+  const handleSearchClear = () => {
+    setSearchQuery("");
   };
 
   const handleSort = (field) => {
@@ -139,7 +169,7 @@ return dueDate && isAfter(new Date(), new Date(dueDate)) && status !== "Done";
       }
     }
   };
-
+const searchSuggestions = getSearchSuggestions();
   const filteredTasks = getFilteredTasks();
 // Sortable Task Row Component
   const SortableTaskRow = ({ task, index }) => {
@@ -263,14 +293,16 @@ return dueDate && isAfter(new Date(), new Date(dueDate)) && status !== "Done";
         ))}
       </div>
 
-      {/* Task List */}
+{/* Task List */}
       {filteredTasks.length === 0 ? (
         <Empty
           title="No tasks found"
           description={
-            filter === "All Tasks" 
-              ? "Create your first task to get started with project management."
-              : `No tasks match the "${filter}" filter. Try a different filter or create a new task.`
+            searchQuery.trim() 
+              ? `No tasks match your search "${searchQuery}". Try a different search term.`
+              : filter === "All Tasks" 
+                ? "Create your first task to get started with project management."
+                : `No tasks match the "${filter}" filter. Try a different filter or create a new task.`
           }
           icon="CheckSquare"
           actionLabel="Create Task"
@@ -279,7 +311,21 @@ return dueDate && isAfter(new Date(), new Date(dueDate)) && status !== "Done";
       ) : (
         <div className="bg-white rounded-xl shadow-elevation-2 overflow-hidden">
           {/* Table Header */}
-          <div className="grid grid-cols-5 gap-4 p-4 border-b border-gray-200 bg-gray-50">
+          <div className="grid grid-cols-6 gap-4 p-4 border-b border-gray-200 bg-gray-50">
+            {/* Search Input */}
+            <div className="relative">
+              <Input
+                placeholder="Search tasks..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                suggestions={searchSuggestions}
+                onSuggestionSelect={handleSearchSelect}
+                onClear={handleSearchClear}
+                className="text-sm h-8"
+              />
+            </div>
+            
+            {/* Column Headers */}
             {[
               { key: "title", label: "Task" },
               { key: "projectId", label: "Project" },
@@ -307,7 +353,7 @@ return dueDate && isAfter(new Date(), new Date(dueDate)) && status !== "Done";
           </div>
 
           {/* Task Rows */}
-<div className="divide-y divide-gray-100">
+          <div className="divide-y divide-gray-100">
             <DndContext
               sensors={sensors}
               collisionDetection={closestCenter}
@@ -319,7 +365,7 @@ return dueDate && isAfter(new Date(), new Date(dueDate)) && status !== "Done";
                 ))}
               </SortableContext>
             </DndContext>
-          </div>
+</div>
         </div>
       )}
 
