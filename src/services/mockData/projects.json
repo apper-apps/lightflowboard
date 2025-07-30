@@ -1,0 +1,22 @@
+[
+  {
+    "Id": 1,
+    "name": "FlowBoard Platform",
+    "color": "#5B47E0"
+  },
+  {
+    "Id": 2,
+    "name": "API Development",
+    "color": "#00D4AA"
+  },
+  {
+    "Id": 3,
+    "name": "Mobile Experience",
+    "color": "#FF6B6B"
+  },
+  {
+    "Id": 4,
+    "name": "Infrastructure",
+    "color": "#4ECDC4"
+  }
+]

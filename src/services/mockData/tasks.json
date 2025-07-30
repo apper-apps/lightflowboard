@@ -1,0 +1,98 @@
+[
+  {
+    "Id": 1,
+    "title": "Design user dashboard wireframes",
+    "description": "Create wireframes for the main user dashboard including navigation, widgets, and layout structure",
+    "projectId": 1,
+    "assigneeId": 2,
+    "dueDate": "2024-01-25T00:00:00.000Z",
+    "priority": "High",
+    "status": "In Progress",
+    "createdAt": "2024-01-15T10:00:00.000Z",
+    "updatedAt": "2024-01-20T14:30:00.000Z"
+  },
+  {
+    "Id": 2,
+    "title": "Implement authentication system",
+    "description": "Build secure login and registration system with JWT tokens and password validation",
+    "projectId": 1,
+    "assigneeId": 1,
+    "dueDate": "2024-01-28T00:00:00.000Z",
+    "priority": "Critical",
+    "status": "To Do",
+    "createdAt": "2024-01-16T09:15:00.000Z",
+    "updatedAt": "2024-01-16T09:15:00.000Z"
+  },
+  {
+    "Id": 3,
+    "title": "Write API documentation",
+    "description": "Document all REST API endpoints with examples and response formats",
+    "projectId": 2,
+    "assigneeId": 3,
+    "dueDate": "2024-01-22T00:00:00.000Z",
+    "priority": "Medium",
+    "status": "Review",
+    "createdAt": "2024-01-12T16:45:00.000Z",
+    "updatedAt": "2024-01-21T11:20:00.000Z"
+  },
+  {
+    "Id": 4,
+    "title": "Set up CI/CD pipeline",
+    "description": "Configure automated testing and deployment pipeline using GitHub Actions",
+    "projectId": 2,
+    "assigneeId": 4,
+    "dueDate": "2024-01-30T00:00:00.000Z",
+    "priority": "High",
+    "status": "To Do",
+    "createdAt": "2024-01-18T13:30:00.000Z",
+    "updatedAt": "2024-01-18T13:30:00.000Z"
+  },
+  {
+    "Id": 5,
+    "title": "Mobile app responsive design",
+    "description": "Ensure all components work perfectly on mobile devices and tablets",
+    "projectId": 3,
+    "assigneeId": 2,
+    "dueDate": "2024-01-26T00:00:00.000Z",
+    "priority": "Medium",
+    "status": "Done",
+    "createdAt": "2024-01-10T08:00:00.000Z",
+    "updatedAt": "2024-01-24T17:15:00.000Z"
+  },
+  {
+    "Id": 6,
+    "title": "Database optimization",
+    "description": "Optimize database queries and add proper indexing for better performance",
+    "projectId": 2,
+    "assigneeId": 1,
+    "dueDate": "2024-01-20T00:00:00.000Z",
+    "priority": "High",
+    "status": "Done",
+    "createdAt": "2024-01-08T14:20:00.000Z",
+    "updatedAt": "2024-01-19T16:45:00.000Z"
+  },
+  {
+    "Id": 7,
+    "title": "User feedback integration",
+    "description": "Implement in-app feedback system for users to report issues and suggestions",
+    "projectId": 3,
+    "assigneeId": 3,
+    "dueDate": "2024-02-05T00:00:00.000Z",
+    "priority": "Low",
+    "status": "To Do",
+    "createdAt": "2024-01-22T10:30:00.000Z",
+    "updatedAt": "2024-01-22T10:30:00.000Z"
+  },
+  {
+    "Id": 8,
+    "title": "Security audit",
+    "description": "Conduct comprehensive security review and fix any vulnerabilities",
+    "projectId": 1,
+    "assigneeId": 4,
+    "dueDate": "2024-01-19T00:00:00.000Z",
+    "priority": "Critical",
+    "status": "Review",
+    "createdAt": "2024-01-05T11:00:00.000Z",
+    "updatedAt": "2024-01-18T15:20:00.000Z"
+  }
+]

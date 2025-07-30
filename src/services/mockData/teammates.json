@@ -1,0 +1,32 @@
+[
+  {
+    "Id": 1,
+    "name": "John Doe",
+    "email": "john.doe@flowboard.com",
+    "avatar": "JD"
+  },
+  {
+    "Id": 2,
+    "name": "Sarah Chen",
+    "email": "sarah.chen@flowboard.com",
+    "avatar": "SC"
+  },
+  {
+    "Id": 3,
+    "name": "Mike Johnson",
+    "email": "mike.johnson@flowboard.com",
+    "avatar": "MJ"
+  },
+  {
+    "Id": 4,
+    "name": "Emily Rodriguez",
+    "email": "emily.rodriguez@flowboard.com",
+    "avatar": "ER"
+  },
+  {
+    "Id": 5,
+    "name": "David Kim",
+    "email": "david.kim@flowboard.com",
+    "avatar": "DK"
+  }
+]
