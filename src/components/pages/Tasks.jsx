@@ -61,8 +61,7 @@ const Tasks = () => {
       console.error("Error updating task:", err);
     }
   };
-
-  const handleDeleteTask = async (taskId) => {
+const handleDeleteTask = async (taskId) => {
     try {
       await taskService.deleteTask(taskId);
       setTasks(prev => prev.filter(task => task.Id !== taskId));
@@ -73,8 +72,18 @@ const Tasks = () => {
     }
   };
 
+  const handleReorderTasks = async (reorderedTasks) => {
+    try {
+      setTasks(reorderedTasks);
+      await taskService.reorderTasks(reorderedTasks);
+      toast.success("Tasks reordered successfully!");
+    } catch (err) {
+      toast.error("Failed to reorder tasks");
+      console.error("Error reordering tasks:", err);
+    }
+  };
   return (
-    <TaskList
+<TaskList
       tasks={tasks}
       projects={projects}
       teammates={teammates}
@@ -84,6 +93,7 @@ const Tasks = () => {
       onCreateTask={handleCreateTask}
       onUpdateTask={handleUpdateTask}
       onDeleteTask={handleDeleteTask}
+      onReorderTasks={handleReorderTasks}
     />
   );
 };

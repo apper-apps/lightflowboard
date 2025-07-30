@@ -1,5 +1,9 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
+import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
+import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import { format, isAfter, isToday, isThisWeek } from "date-fns";
 import ApperIcon from "@/components/ApperIcon";
 import Button from "@/components/atoms/Button";
@@ -19,13 +23,20 @@ const TaskList = ({
   onRetry,
   onCreateTask,
   onUpdateTask,
-  onDeleteTask 
+  onDeleteTask,
+  onReorderTasks
 }) => {
   const [filter, setFilter] = useState("My Tasks");
   const [sortField, setSortField] = useState("dueDate");
   const [sortDirection, setSortDirection] = useState("asc");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState(null);
+const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
 
   const filters = [
     { key: "All Tasks", label: "All Tasks" },
@@ -111,10 +122,114 @@ const TaskList = ({
   };
 
   const isOverdue = (dueDate, status) => {
-    return dueDate && isAfter(new Date(), new Date(dueDate)) && status !== "Done";
+return dueDate && isAfter(new Date(), new Date(dueDate)) && status !== "Done";
+  };
+
+  const handleDragEnd = (event) => {
+    const { active, over } = event;
+
+    if (active.id !== over?.id) {
+      const oldIndex = filteredTasks.findIndex(task => task.Id === active.id);
+      const newIndex = filteredTasks.findIndex(task => task.Id === over.id);
+      
+      const reorderedTasks = arrayMove(filteredTasks, oldIndex, newIndex);
+      
+      if (onReorderTasks) {
+        onReorderTasks(reorderedTasks);
+      }
+    }
   };
 
   const filteredTasks = getFilteredTasks();
+// Sortable Task Row Component
+  const SortableTaskRow = ({ task, index }) => {
+    const {
+      attributes,
+      listeners,
+      setNodeRef,
+      transform,
+      transition,
+      isDragging,
+    } = useSortable({ id: task.Id });
+
+    const style = {
+      transform: CSS.Transform.toString(transform),
+      transition,
+    };
+
+    return (
+      <motion.div
+        ref={setNodeRef}
+        style={style}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: index * 0.05 }}
+        className={`grid grid-cols-6 gap-4 p-4 hover:bg-gradient-to-r hover:from-gray-50 hover:to-primary-50/30 transition-all duration-200 cursor-pointer group ${
+          isDragging ? 'opacity-50 shadow-lg z-50' : ''
+        }`}
+        onClick={() => handleEditTask(task)}
+      >
+        {/* Drag Handle */}
+        <div 
+          className="flex items-center justify-center cursor-grab active:cursor-grabbing"
+          {...attributes}
+          {...listeners}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <ApperIcon name="GripVertical" size={16} className="text-gray-400 hover:text-gray-600 transition-colors" />
+        </div>
+
+        {/* Task Title */}
+        <div className="flex items-center gap-3">
+          <div className="flex flex-col">
+            <span className="font-medium text-gray-900 group-hover:text-primary-700 transition-colors">
+              {task.title}
+            </span>
+            {task.description && (
+              <span className="text-sm text-gray-500 truncate max-w-[200px]">
+                {task.description}
+              </span>
+            )}
+          </div>
+        </div>
+
+        {/* Project */}
+        <div className="flex items-center">
+          <span className="text-sm text-gray-600">
+            {getProjectName(task.projectId)}
+          </span>
+        </div>
+
+        {/* Assignee */}
+        <div className="flex items-center gap-2">
+          <div className="w-6 h-6 bg-gradient-to-br from-primary-400 to-accent-400 rounded-full flex items-center justify-center">
+            <span className="text-xs font-semibold text-white">
+              {getAssigneeName(task.assigneeId).charAt(0)}
+            </span>
+          </div>
+          <span className="text-sm text-gray-600">
+            {getAssigneeName(task.assigneeId)}
+          </span>
+        </div>
+
+        {/* Due Date */}
+        <div className="flex items-center">
+          <span className={`text-sm ${
+            isOverdue(task.dueDate, task.status) 
+              ? "text-error font-medium" 
+              : "text-gray-600"
+          }`}>
+            {task.dueDate ? format(new Date(task.dueDate), "MMM dd, yyyy") : "No due date"}
+          </span>
+        </div>
+
+        {/* Status */}
+        <div className="flex items-center">
+          <StatusBadge status={task.status} />
+        </div>
+      </motion.div>
+    );
+  };
 
   if (loading) return <Loading />;
   if (error) return <Error message={error} onRetry={onRetry} />;
@@ -192,66 +307,18 @@ const TaskList = ({
           </div>
 
           {/* Task Rows */}
-          <div className="divide-y divide-gray-100">
-            {filteredTasks.map((task, index) => (
-              <motion.div
-                key={task.Id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.05 }}
-                className="grid grid-cols-5 gap-4 p-4 hover:bg-gradient-to-r hover:from-gray-50 hover:to-primary-50/30 transition-all duration-200 cursor-pointer group"
-                onClick={() => handleEditTask(task)}
-              >
-                {/* Task Title */}
-                <div className="flex items-center gap-3">
-                  <div className="flex flex-col">
-                    <span className="font-medium text-gray-900 group-hover:text-primary-700 transition-colors">
-                      {task.title}
-                    </span>
-                    {task.description && (
-                      <span className="text-sm text-gray-500 truncate max-w-[200px]">
-                        {task.description}
-                      </span>
-                    )}
-                  </div>
-                </div>
-
-                {/* Project */}
-                <div className="flex items-center">
-                  <span className="text-sm text-gray-600">
-                    {getProjectName(task.projectId)}
-                  </span>
-                </div>
-
-                {/* Assignee */}
-                <div className="flex items-center gap-2">
-                  <div className="w-6 h-6 bg-gradient-to-br from-primary-400 to-accent-400 rounded-full flex items-center justify-center">
-                    <span className="text-xs font-semibold text-white">
-                      {getAssigneeName(task.assigneeId).charAt(0)}
-                    </span>
-                  </div>
-                  <span className="text-sm text-gray-600">
-                    {getAssigneeName(task.assigneeId)}
-                  </span>
-                </div>
-
-                {/* Due Date */}
-                <div className="flex items-center">
-                  <span className={`text-sm ${
-                    isOverdue(task.dueDate, task.status) 
-                      ? "text-error font-medium" 
-                      : "text-gray-600"
-                  }`}>
-                    {task.dueDate ? format(new Date(task.dueDate), "MMM dd, yyyy") : "No due date"}
-                  </span>
-                </div>
-
-                {/* Status */}
-                <div className="flex items-center">
-                  <StatusBadge status={task.status} />
-                </div>
-              </motion.div>
-            ))}
+<div className="divide-y divide-gray-100">
+            <DndContext
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragEnd={handleDragEnd}
+            >
+              <SortableContext items={filteredTasks.map(task => task.Id)} strategy={verticalListSortingStrategy}>
+                {filteredTasks.map((task, index) => (
+                  <SortableTaskRow key={task.Id} task={task} index={index} />
+                ))}
+              </SortableContext>
+            </DndContext>
           </div>
         </div>
       )}

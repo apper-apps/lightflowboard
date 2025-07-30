@@ -1,69 +1,67 @@
-// Import mock data
-import tasksData from "@/services/mockData/tasks.json";
+import tasksData from '@/services/mockData/tasks.json';
 
-// In-memory storage for development
 let tasks = [...tasksData];
 
-// Helper function to simulate API delay
+// Simulate API delay
 const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 export const getAllTasks = async () => {
-  await delay(300);
+  await delay(500);
   return [...tasks];
 };
 
 export const getTaskById = async (id) => {
   await delay(200);
-  const task = tasks.find(task => task.Id === parseInt(id));
+  const task = tasks.find(t => t.Id === id);
   if (!task) {
-    throw new Error("Task not found");
+    throw new Error('Task not found');
   }
   return { ...task };
 };
 
 export const createTask = async (taskData) => {
-  await delay(400);
-  
-  // Find the highest existing Id and add 1
-  const maxId = tasks.length > 0 ? Math.max(...tasks.map(task => task.Id)) : 0;
-  
+  await delay(300);
   const newTask = {
-    Id: maxId + 1,
     ...taskData,
-    createdAt: new Date(),
-    updatedAt: new Date()
+    Id: Math.max(...tasks.map(t => t.Id), 0) + 1,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
   };
-  
   tasks.push(newTask);
   return { ...newTask };
 };
 
 export const updateTask = async (id, taskData) => {
   await delay(300);
-  
-  const taskIndex = tasks.findIndex(task => task.Id === parseInt(id));
-  if (taskIndex === -1) {
-    throw new Error("Task not found");
+  const index = tasks.findIndex(t => t.Id === id);
+  if (index === -1) {
+    throw new Error('Task not found');
   }
   
-  const updatedTask = {
-    ...tasks[taskIndex],
+  tasks[index] = {
+    ...tasks[index],
     ...taskData,
-    updatedAt: new Date()
+    Id: id, // Ensure ID doesn't change
+    updatedAt: new Date().toISOString()
   };
   
-  tasks[taskIndex] = updatedTask;
-  return { ...updatedTask };
+  return { ...tasks[index] };
 };
 
 export const deleteTask = async (id) => {
-  await delay(250);
-  
-  const taskIndex = tasks.findIndex(task => task.Id === parseInt(id));
-  if (taskIndex === -1) {
-    throw new Error("Task not found");
+  await delay(200);
+  const index = tasks.findIndex(t => t.Id === id);
+  if (index === -1) {
+    throw new Error('Task not found');
   }
   
-  tasks.splice(taskIndex, 1);
+  tasks.splice(index, 1);
+  return true;
+};
+
+export const reorderTasks = async (reorderedTasks) => {
+  await delay(300);
+  // Update the tasks array with the new order
+  tasks = [...reorderedTasks];
   return true;
 };
